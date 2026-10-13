@@ -1,0 +1,79 @@
+
+flowchart TB
+    USER["Human Operator"]
+    UI["Shikhar-AI Dashboard"]
+    API["Backend API<br/>Input Validation and Authorization"]
+    ORCH["Workflow Orchestrator<br/>Stage Control and Error Handling"]
+    STORE[("Incident Store<br/>Reports and Response Packages")]
+    AUDIT[("Audit and Evaluation Records")]
+
+    subgraph AI["AI Agent Layer"]
+        SCOUT["Scout Agent<br/>Extract Facts and Uncertainty"]
+        LOGISTICS["Logistics Agent<br/>Interpret Needs and Propose Allocations"]
+        COMMS["Communications Agent<br/>Draft English and Nepali Messages"]
+    end
+
+    subgraph SERVICES["Deterministic Application Services"]
+        SCHEMA["Schema and Evidence Validator"]
+        INV[("Sample Resource Inventory")]
+        ENGINE["Inventory Calculation and<br/>Constraint Validation"]
+        REVIEW["Review State and Approval Controller"]
+    end
+
+    MODEL["Gemini or Other Configured<br/>Language Model Provider"]
+
+    USER -->|"Submit incident report"| UI
+    UI -->|"Request"| API
+    API -->|"Validate and create incident"| STORE
+    API -->|"Start processing"| ORCH
+
+    ORCH --> SCOUT
+    SCOUT <-->|"Language understanding"| MODEL
+    SCOUT -->|"Structured facts and uncertainty"| SCHEMA
+
+    SCHEMA -->|"Valid incident record"| ORCH
+    ORCH --> LOGISTICS
+    LOGISTICS <-->|"Interpret needs"| MODEL
+    LOGISTICS -->|"Proposed resource needs"| ENGINE
+
+    INV -->|"Available quantities and units"| ENGINE
+    ENGINE -->|"Validated allocations, shortages and evidence"| ORCH
+
+    ORCH --> COMMS
+    COMMS <-->|"Draft message generation"| MODEL
+    COMMS -->|"English and Nepali drafts"| SCHEMA
+
+    SCHEMA -->|"Validated response package"| REVIEW
+    REVIEW -->|"Persist package and review status"| STORE
+    REVIEW -->|"Record workflow and review events"| AUDIT
+    STORE -->|"Response package and status"| API
+    API -->|"Display facts, evidence, drafts and status"| UI
+    UI -->|"Review, edit, approve or reject"| API
+    API --> REVIEW
+
+    REVIEW -->|"Approved decision only"| AUDIT
+    REVIEW -->|"Edited or rejected decision"| AUDIT
+    REVIEW -->|"Clarification required"| ORCH
+
+    SCHEMA -.->|"Invalid output"| ERROR["Visible Error State<br/>Retry or Human Intervention"]
+    MODEL -.->|"Timeout or provider error"| ERROR
+    ENGINE -.->|"Unavailable stock or invalid allocation"| ERROR
+    ORCH -.->|"Record failure and block unsafe progression"| ERROR
+    ERROR -->|"Persist failure status"| STORE
+    ERROR -->|"Record failure event"| AUDIT
+    ERROR -->|"Show error to reviewer"| UI
+
+    APPROVAL["Approval does not trigger<br/>automatic dispatch or broadcasting"]
+    REVIEW -.-> APPROVAL
+
+    classDef human fill:#fff4d6,stroke:#b88719,color:#382900;
+    classDef agent fill:#e5f0ff,stroke:#477fc1,color:#102b4e;
+    classDef service fill:#e5f5e8,stroke:#4d9361,color:#153b20;
+    classDef storage fill:#f0e7ff,stroke:#8562b3,color:#34204f;
+    classDef failure fill:#ffe7e7,stroke:#c44848,color:#641d1d;
+
+    class USER,UI human;
+    class SCOUT,LOGISTICS,COMMS,MODEL agent;
+    class API,ORCH,SCHEMA,ENGINE,REVIEW service;
+    class STORE,AUDIT,INV storage;
+    class ERROR failure;
