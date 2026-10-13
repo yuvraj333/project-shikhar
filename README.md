@@ -61,6 +61,15 @@ Architecture assets:
 - [Architecture Diagram (Mermaid)](docs/assets/architecture.mmd)
 - [Architecture Diagram (PNG)](docs/assets/architecture.png)
 
+
+## System Architecture
+
+The following diagram illustrates the main components, multi-agent workflow, deterministic resource validation, and human approval paths.
+
+![Shikhar-AI System Architecture](docs/assets/architecture.png)
+
+For the editable diagram source, see [architecture.mmd](docs/assets/architecture.mmd) or read the [System Architecture documentation](docs/03-system-architecture.md).
+
 ## Development principles
 
 - Evidence-grounded outputs rather than unsupported claims.
