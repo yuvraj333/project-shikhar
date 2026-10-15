@@ -1,0 +1,32 @@
+{
+  "inventory_snapshot_id": "INV-SNAPSHOT-DEMO-001",
+  "inventory_source": "sample_json",
+  "source_type": "simulated",
+  "inventory_checked_at": "2026-10-13T10:00:00+05:45",
+  "resources": [
+    {
+      "resource_id": "WATER-001",
+      "resource_type": "drinking_water",
+      "available_quantity": 500,
+      "unit": "bottles",
+      "location_text": "Kathmandu Warehouse A",
+      "status": "available"
+    },
+    {
+      "resource_id": "MED-001",
+      "resource_type": "first_aid_kits",
+      "available_quantity": 50,
+      "unit": "kits",
+      "location_text": "Kathmandu Warehouse A",
+      "status": "available"
+    },
+    {
+      "resource_id": "TENT-001",
+      "resource_type": "tents",
+      "available_quantity": 0,
+      "unit": "units",
+      "location_text": "Lalitpur Depot",
+      "status": "unavailable"
+    }
+  ]
+}

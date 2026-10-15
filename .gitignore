@@ -1,0 +1,107 @@
+# =========================
+# System & OS Files
+# =========================
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
+# =========================
+# Python / Backend
+# =========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+backend/.venv/
+backend/venv/
+backend/env/
+.env/
+venv/
+ENV/
+
+# Pytest & Coverage
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/coverage.xml
+
+# Distribution / Packaging
+backend/build/
+backend/develop-eggs/
+backend/dist/
+backend/downloads/
+backend/eggs/
+backend/.eggs/
+backend/lib/
+backend/lib64/
+backend/parts/
+backend/sdist/
+backend/var/
+backend/wheels/
+backend/*.egg-info/
+backend/.installed.cfg
+backend/*.egg
+
+# Type Checkers (MyPy)
+backend/.mypy_cache/
+backend/.pyre/
+backend/.typecheck/
+
+# =========================
+# Node.js / Next.js / Frontend
+# =========================
+# Dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Next.js Build Output
+frontend/.next/
+frontend/out/
+
+# Production Build
+frontend/build/
+
+# Typescript
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+
+# Vercel
+frontend/.vercel/
+
+# Debug logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+# =========================
+# Environments & Secrets
+# =========================
+# Never commit actual environment files containing secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+frontend/.env.local
+!frontend/.env.example
+
+# Keys & Certificates
+*.pem
+*.key
+*.cert
+service-account*.json
+
+# =========================
+# IDEs & Editors
+# =========================
+.idea/
+.vscode/
+*.code-workspace

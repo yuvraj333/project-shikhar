@@ -1,0 +1,16 @@
+[
+  {
+    "report_id": "REP-DEMO-001",
+    "description": "Clear report (T01)",
+    "report_text": "A severe landslide has hit Nakkhu in Lalitpur district. 4 people are reported trapped in a tin-roofed house. Locals are trying to dig them out. We urgently need drinking water and first aid kits.",
+    "source_type": "simulated",
+    "received_at": "2026-10-15T08:15:00+05:45"
+  },
+  {
+    "report_id": "REP-DEMO-002",
+    "description": "Vague flood report (T02)",
+    "report_text": "Massive flooding along the Bagmati river corridor. Water has entered the ground floors of multiple settlements. People are moving to higher ground. Need tents.",
+    "source_type": "simulated",
+    "received_at": "2026-10-15T09:30:00+05:45"
+  }
+]
