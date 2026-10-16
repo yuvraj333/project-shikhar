@@ -5,7 +5,6 @@ from app.schemas.common import StrictModel, NonEmptyString, SourceType
 class InventoryStatus(str, Enum):
     AVAILABLE = "available"
     UNAVAILABLE = "unavailable"
-
 class InventoryResource(StrictModel):
     """A resource entry from one inventory snapshot."""
     resource_id: NonEmptyString
@@ -14,7 +13,7 @@ class InventoryResource(StrictModel):
     unit: NonEmptyString
     location_text: NonEmptyString | None = None
     status: InventoryStatus = InventoryStatus.AVAILABLE
-
+    
     @model_validator(mode="after")
     def validate_status_and_quantity(self):
         if (
@@ -54,3 +53,4 @@ class InventorySnapshot(StrictModel):
                 "per resource type."
             )
         return self
+        
