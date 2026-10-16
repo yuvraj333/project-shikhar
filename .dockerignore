@@ -1,0 +1,56 @@
+# =========================
+# Git & Version Control
+# =========================
+.git
+.gitignore
+README.md
+
+# =========================
+# Python / Backend Ignores
+# =========================
+backend/.venv/
+backend/venv/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/dist/
+backend/build/
+*.egg-info/
+
+# =========================
+# Node.js / Frontend Ignores
+# =========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/.pnpm-debug/
+
+# =========================
+# Environments & Secrets
+# =========================
+.env
+.env.*
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+frontend/.env.local
+*.pem
+*.key
+*.cert
+service-account*.json
+
+# =========================
+# OS & IDEs
+# =========================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

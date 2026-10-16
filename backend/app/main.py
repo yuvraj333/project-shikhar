@@ -121,3 +121,33 @@ def get_public_broadcasts():
     """Retrieves all officially published broadcasts for the Public Portal."""
     broadcasts = ReviewService.get_public_broadcasts()
     return {"status": "success", "broadcasts": broadcasts}
+
+class VictimRequestPayload(BaseModel):
+    name: str
+    need: str
+    latitude: float = 27.7172
+    longitude: float = 85.3240
+
+@app.post("/api/victim/rescue-request")
+def submit_rescue_request(payload: VictimRequestPayload):
+    """Logs a live survivor distress call with GPS coordinates into SQLite."""
+    result = ReviewService.log_victim_request(
+        name=payload.name,
+        need=payload.need,
+        latitude=payload.latitude,
+        longitude=payload.longitude
+    )
+    return {"status": "success", "data": result}
+
+@app.get("/api/victim/rescue-requests")
+def get_rescue_requests():
+    """Retrieves all active distress calls for the Command Center dashboard."""
+    requests = ReviewService.get_victim_requests()
+    return {"status": "success", "requests": requests}
+class StatusUpdatePayload(BaseModel):
+    status: str
+
+@app.patch("/api/victim/rescue-request/{request_id}/status")
+def update_rescue_status(request_id: int, payload: StatusUpdatePayload):
+    result = ReviewService.update_rescue_status(request_id, payload.status)
+    return {"status": "success", "data": result}

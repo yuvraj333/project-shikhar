@@ -72,3 +72,58 @@ class ReviewService:
         rows = cursor.fetchall()
         conn.close()
         return [dict(row) for row in rows]
+    @staticmethod
+    def log_victim_request(name: str, need: str, latitude: float, longitude: float):
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS victim_requests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                need TEXT,
+                latitude REAL,
+                longitude REAL,
+                status TEXT DEFAULT 'pending_rescue',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("""
+            INSERT INTO victim_requests (name, need, latitude, longitude)
+            VALUES (?, ?, ?, ?)
+        """, (name, need, latitude, longitude))
+        conn.commit()
+        conn.close()
+        return {"status": "success", "name": name}
+
+    @staticmethod
+    def get_victim_requests():
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS victim_requests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                need TEXT,
+                latitude REAL,
+                longitude REAL,
+                status TEXT DEFAULT 'pending_rescue',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("SELECT id, name, need, latitude, longitude, status, created_at FROM victim_requests ORDER BY created_at DESC")
+        rows = cursor.fetchall()
+        conn.close()
+        return [dict(row) for row in rows]
+    @staticmethod
+    def update_rescue_status(request_id: int, status: str):
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE victim_requests
+            SET status = ?
+            WHERE id = ?
+        """, (status, request_id))
+        conn.commit()
+        conn.close()
+        return {"status": "success", "id": request_id, "new_status": status}
