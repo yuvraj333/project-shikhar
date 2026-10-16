@@ -1,45 +1,122 @@
 import json
-import os
-from typing import Dict, Any, Optional
+from pathlib import Path
+from typing import Any
+from pydantic import ValidationError
+from app.schemas.inventory import InventorySnapshot
 
 class InventoryService:
-    def __init__(self, filepath: str = "fixtures/inventory.json"):
-        self.filepath = filepath
-        self._inventory_data = self._load_inventory()
+    """Deterministic inventory lookup and shortfall calculation.
+    Loads and validates a timestamped inventory snapshot. All quantity
+    calculations are performed by Python, not by an LLM.
+    Missing inventory is treated as unknown, never as zero.
+    """
 
-    def _load_inventory(self) -> Dict[str, Any]:
-        if not os.path.exists(self.filepath):
-            raise FileNotFoundError(f"Inventory file not found: {self.filepath}")
-        with open(self.filepath, "r") as f:
-            return json.load(f)
+    def __init__(
+        self,
+        filepath: str | Path = "fixtures/inventory.json",
+    ) -> None:
+        self.filepath = Path(filepath)
+        self._snapshot = self._load_inventory()
 
-    def check_availability(self, resource_type: str, requested_quantity: Optional[int] = None) -> Dict[str, Any]:
-        """Deterministically checks inventory and calculates shortfalls."""
-        resources = self._inventory_data.get("resources", [])
+    def _load_inventory(self) -> InventorySnapshot:
+        """Load and validate the complete inventory snapshot."""
+
+        if not self.filepath.is_file():
+            raise FileNotFoundError(
+                f"Inventory file not found: {self.filepath}"
+            )
+        try:
+            with self.filepath.open("r", encoding="utf-8") as file:
+                data = json.load(file)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"Invalid JSON in inventory file: {self.filepath}"
+            ) from exc
+        try:
+            return InventorySnapshot.model_validate(data)
+        except ValidationError as exc:
+            raise ValueError(
+                f"Inventory snapshot failed schema validation: "
+                f"{self.filepath}\n{exc}"
+            ) from exc
         
-        # Find the resource by type
-        item = next((r for r in resources if r["resource_type"] == resource_type), None)
-        
-        if not item:
+    @property
+    def snapshot(self) -> InventorySnapshot:
+        """Return the validated inventory snapshot."""
+        return self._snapshot
+
+    def check_availability(
+        self,
+        resource_type: str,
+        requested_quantity: int | None = None,
+    ) -> dict[str, Any]:
+        """Return validated inventory information and a known shortfall.
+        Unknown resource:
+            available_quantity=None
+            shortfall_quantity=None
+        Unknown demand:
+            requested_quantity=None
+            shortfall_quantity=None
+        Known demand and stock:
+            shortfall_quantity=max(0, demand - available stock)
+        """
+        if not isinstance(resource_type, str) or not resource_type.strip():
+            raise ValueError("resource_type must be a non-empty string.")
+        if requested_quantity is not None:
+            if isinstance(requested_quantity, bool) or not isinstance(
+                requested_quantity, int
+            ):
+                raise ValueError(
+                    "requested_quantity must be a non-negative integer "
+                    "or None."
+                )
+            if requested_quantity < 0:
+                raise ValueError(
+                    "requested_quantity cannot be negative."
+                )
+        normalized_type = resource_type.strip().lower()
+        item = next(
+            (
+                resource
+                for resource in self._snapshot.resources
+                if resource.resource_type.strip().lower()
+                == normalized_type
+            ),
+            None,
+        )
+        snapshot = self._snapshot
+        common = {
+            "resource_type": normalized_type,
+            "requested_quantity": requested_quantity,
+            "inventory_snapshot_id": snapshot.inventory_snapshot_id,
+            "inventory_source": snapshot.inventory_source,
+            "inventory_checked_at": snapshot.inventory_checked_at.isoformat(),
+            "source_type": snapshot.source_type.value,
+        }
+        # No matching inventory record means stock is unknown.
+        if item is None:
             return {
-                "resource_type": resource_type,
-                "available_quantity": 0,
-                "requested_quantity": requested_quantity,
-                "shortfall_quantity": requested_quantity if requested_quantity else 0,
+                **common,
+                "available_quantity": None,
+                "shortfall_quantity": None,
                 "unit": "unknown",
                 "status": "not_found",
-                "inventory_snapshot_id": self._inventory_data["inventory_snapshot_id"]
+                "location_text": None,
+                "resource_id": None,
             }
-
-        available = item["available_quantity"]
-        shortfall = max(0, requested_quantity - available) if requested_quantity is not None else None
-
+        available = item.available_quantity
+        shortfall = (
+            max(0, requested_quantity - available)
+            if requested_quantity is not None
+            else None
+        )
         return {
-            "resource_type": resource_type,
+            **common,
+            "resource_type": item.resource_type,
             "available_quantity": available,
-            "requested_quantity": requested_quantity,
             "shortfall_quantity": shortfall,
-            "unit": item["unit"],
-            "status": item["status"],
-            "inventory_snapshot_id": self._inventory_data["inventory_snapshot_id"]
+            "unit": item.unit,
+            "status": item.status.value,
+            "location_text": item.location_text,
+            "resource_id": item.resource_id,
         }
