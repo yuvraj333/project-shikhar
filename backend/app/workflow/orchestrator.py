@@ -2,12 +2,10 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
-
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 from pydantic import ValidationError
-
 from app.agents.communications import get_communications_agent
 from app.agents.logistics import get_logistics_agent
 from app.agents.scout import get_scout_agent
@@ -33,14 +31,12 @@ class ShikharOrchestrator:
     """
 
     APP_NAME = "shikhar_app"
-
     def __init__(
         self,
         inventory_filepath: str = "fixtures/inventory.json",
     ) -> None:
         self.session_service = InMemorySessionService()
         self.inventory_service = InventoryService(inventory_filepath)
-
         self.scout_agent = get_scout_agent()
         self.logistics_agent = get_logistics_agent()
         self.comms_agent = get_communications_agent()
@@ -48,7 +44,6 @@ class ShikharOrchestrator:
     @staticmethod
     def _new_id(prefix: str) -> str:
         return f"{prefix}-{uuid4().hex[:12].upper()}"
-
     async def _run_agent(
         self,
         agent: Any,
@@ -64,7 +59,6 @@ class ShikharOrchestrator:
             app_name=self.APP_NAME,
             session_service=self.session_service,
         )
-
         message = types.Content(
             role="user",
             parts=[types.Part(text=prompt)],
@@ -83,7 +77,6 @@ class ShikharOrchestrator:
                         f"{stage_name} agent reported an error: {error_code}. "
                         f"Details: {error_message or 'No additional details provided by ADK.'}"
                     )
-
                 is_final_response = getattr(event, "is_final_response", None)
                 is_final = (
                     is_final_response() if callable(is_final_response) else False
@@ -101,14 +94,11 @@ class ShikharOrchestrator:
             raise WorkflowError(
                 f"{stage_name} agent execution failed."
             ) from exc
-
         raw_text = "\n".join(final_text_parts).strip()
-
         if not raw_text:
             raise WorkflowError(
                 f"{stage_name} agent returned no final text response."
             )
-
         # Tolerates Markdown code fences if returned by the model.
         if raw_text.startswith("```"):
             lines = raw_text.splitlines()
@@ -117,28 +107,23 @@ class ShikharOrchestrator:
             if lines and lines[-1].strip() == "```":
                 lines = lines[:-1]
             raw_text = "\n".join(lines).strip()
-
         try:
             payload = json.loads(raw_text)
         except json.JSONDecodeError as exc:
             raise WorkflowError(
                 f"{stage_name} agent returned invalid JSON."
             ) from exc
-
         if not isinstance(payload, dict):
             raise WorkflowError(
                 f"{stage_name} agent must return a JSON object."
             )
-
         return payload
-
     @staticmethod
     def _validate_incident_evidence(
         incident: Incident,
         report_text: str,
     ) -> None:
         """Reject evidence excerpts that are not exact substrings of the
-
         supplied report. This checks quotation fidelity, not factual truth.
         """
         for evidence in incident.evidence:
@@ -147,11 +132,9 @@ class ShikharOrchestrator:
                     "Scout returned an evidence excerpt that does not "
                     "exactly match the supplied report."
                 )
-
     def _get_inventory_lookups(self) -> list[dict[str, Any]]:
         """Return availability for each known resource without assuming demand."""
         snapshot = self.inventory_service.snapshot
-
         lookups = []
         for resource in snapshot.resources:
             result = self.inventory_service.check_availability(
@@ -159,9 +142,8 @@ class ShikharOrchestrator:
                 requested_quantity=None,
             )
             lookups.append(result)
-
         return lookups
-
+    
     @staticmethod
     def _reconcile_plan(
         payload: dict[str, Any],
@@ -180,47 +162,37 @@ class ShikharOrchestrator:
             for item in inventory_lookups
             if item.get("resource_type")
         }
-
         recommendations = payload.get("recommendations", [])
         if not isinstance(recommendations, list):
             raise WorkflowError(
                 "Logistics returned recommendations in an invalid format."
             )
-
         safe_recommendations = []
-
         for recommendation in recommendations:
             if not isinstance(recommendation, dict):
                 raise WorkflowError(
                     "Logistics returned an invalid recommendation."
                 )
-
             item = dict(recommendation)
             resource_type = item.get("resource_type")
-
             if not isinstance(resource_type, str) or not resource_type.strip():
                 raise WorkflowError(
                     "A resource recommendation has no valid resource type."
                 )
-
             lookup = lookup_by_type.get(resource_type.strip().casefold())
-
             # Do not accept quantities invented by the LLM.
             item["requested_quantity"] = None
             item["proposed_quantity"] = None
             item["shortfall_quantity"] = None
             item["validation_status"] = ValidationStatus.NEEDS_REVIEW.value
-
             if lookup is None:
                 item["available_quantity"] = None
             else:
                 item["available_quantity"] = lookup["available_quantity"]
                 item["unit"] = lookup["unit"]
-
             safe_recommendations.append(item)
 
         payload["recommendations"] = safe_recommendations
-
         # IDs and workflow states are controlled by the application.
         payload["plan_id"] = ShikharOrchestrator._new_id("PLAN")
         payload["incident_id"] = incident_id
@@ -228,14 +200,12 @@ class ShikharOrchestrator:
         payload["plan_status"] = PlanStatus.NEEDS_REVIEW.value
         payload["dispatch_status"] = "not_dispatched"
         payload["requires_human_approval"] = True
-
         try:
             return ResponsePlan.model_validate(payload)
         except ValidationError as exc:
             raise WorkflowError(
                 "Logistics response failed response-plan schema validation."
             ) from exc
-
     @staticmethod
     def _prepare_communications(
         payload: dict[str, Any],
@@ -315,7 +285,6 @@ class ShikharOrchestrator:
             app_name=self.APP_NAME,
             user_id=user_id,
         )
-
         # ------------------------------------------------------------
         # Stage 1: Scout — extract the incident
         # ------------------------------------------------------------

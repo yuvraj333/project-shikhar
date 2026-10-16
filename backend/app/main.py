@@ -23,10 +23,8 @@ app.add_middleware(
 )
 
 orchestrator = ShikharOrchestrator()
-
 class ReportRequest(BaseModel):
     report_text: str
-
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "shikhar-ai-backend"}

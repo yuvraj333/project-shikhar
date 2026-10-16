@@ -1,16 +1,13 @@
 from enum import Enum
 from typing import Literal
 from pydantic import Field, model_validator
-
 from app.schemas.common import StrictModel, NonEmptyString
-
 
 class PlanStatus(str, Enum):
     DRAFT = "draft"
     NEEDS_REVIEW = "needs_review"
     APPROVED = "approved"
     REJECTED = "rejected"
-
 
 class ValidationStatus(str, Enum):
     NEEDS_REVIEW = "needs_review"
@@ -19,7 +16,6 @@ class ValidationStatus(str, Enum):
 
 class ResourceRecommendation(StrictModel):
     """A proposed resource allocation, not a dispatch instruction."""
-
     resource_type: NonEmptyString
     requested_quantity: int | None = Field(default=None, ge=0)
     available_quantity: int | None = Field(default=None, ge=0)
@@ -50,13 +46,11 @@ class ResourceRecommendation(StrictModel):
                 0,
                 self.requested_quantity - self.available_quantity,
             )
-
             if self.shortfall_quantity != expected_shortfall:
                 raise ValueError(
                     "shortfall_quantity does not match requested quantity "
                     "and available inventory."
                 )
-
         # Do not propose a concrete allocation when stock is unknown.
         if (
             self.proposed_quantity is not None
@@ -66,7 +60,6 @@ class ResourceRecommendation(StrictModel):
                 "proposed_quantity must be None when available inventory "
                 "is unknown."
             )
-
         # A proposed allocation must not exceed known stock.
         if (
             self.proposed_quantity is not None
@@ -79,19 +72,15 @@ class ResourceRecommendation(StrictModel):
 
         return self
 
-
 class ResponsePlan(StrictModel):
     """Human-reviewable resource plan for a reported incident."""
-
     plan_id: NonEmptyString
     incident_id: NonEmptyString
     inventory_snapshot_id: NonEmptyString
     recommendations: list[ResourceRecommendation] = Field(
         default_factory=list
     )
-
     plan_status: PlanStatus = PlanStatus.NEEDS_REVIEW
-
     # This prototype records recommendations only; it does not dispatch.
     dispatch_status: Literal["not_dispatched"] = "not_dispatched"
 

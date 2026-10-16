@@ -33,7 +33,6 @@ def init_db():
 
 # Initialize on import
 init_db()
-
 class ReviewService:
     @staticmethod
     def set_approval_status(item_id: str, incident_id: str, review_type: str, status: str, notes: Optional[str] = None):
@@ -50,7 +49,7 @@ class ReviewService:
         conn.commit()
         conn.close()
         return {"id": item_id, "status": status, "review_type": review_type}
-
+# Publish a broadcast message to the public portal
     @staticmethod
     def publish_broadcast(language: str, audience: str, body: str):
         conn = sqlite3.connect(DB_PATH)
@@ -62,7 +61,7 @@ class ReviewService:
         conn.commit()
         conn.close()
         return {"status": "published", "body": body}
-
+# Retrieve all published broadcasts for the public portal
     @staticmethod
     def get_public_broadcasts() -> List[Dict[str, Any]]:
         conn = sqlite3.connect(DB_PATH)
@@ -72,6 +71,7 @@ class ReviewService:
         rows = cursor.fetchall()
         conn.close()
         return [dict(row) for row in rows]
+    # Log a new victim request with location data
     @staticmethod
     def log_victim_request(name: str, need: str, latitude: float, longitude: float):
         conn = sqlite3.connect(DB_PATH)
@@ -94,7 +94,7 @@ class ReviewService:
         conn.commit()
         conn.close()
         return {"status": "success", "name": name}
-
+# Retrieve all logged victim requests
     @staticmethod
     def get_victim_requests():
         conn = sqlite3.connect(DB_PATH)
@@ -115,6 +115,7 @@ class ReviewService:
         rows = cursor.fetchall()
         conn.close()
         return [dict(row) for row in rows]
+    # Update the status of a specific victim request
     @staticmethod
     def update_rescue_status(request_id: int, status: str):
         conn = sqlite3.connect(DB_PATH)

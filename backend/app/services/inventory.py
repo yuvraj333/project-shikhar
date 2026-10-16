@@ -20,7 +20,6 @@ class InventoryService:
 
     def _load_inventory(self) -> InventorySnapshot:
         """Load and validate the complete inventory snapshot."""
-
         if not self.filepath.is_file():
             raise FileNotFoundError(
                 f"Inventory file not found: {self.filepath}"
@@ -44,7 +43,6 @@ class InventoryService:
     def snapshot(self) -> InventorySnapshot:
         """Return the validated inventory snapshot."""
         return self._snapshot
-
     def check_availability(
         self,
         resource_type: str,

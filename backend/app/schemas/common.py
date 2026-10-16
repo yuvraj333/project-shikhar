@@ -1,13 +1,11 @@
 from enum import Enum
 from typing import Annotated
-# from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic import BaseModel, ConfigDict,Field, field_validator, model_validator
 
 NonEmptyString = Annotated[str, Field(min_length=1)]
-
 class StrictModel(BaseModel):
     """Base model for validated Shikhar-AI data contracts."""
-
+    
     model_config = ConfigDict(
         validate_assignment=True,
         validate_default=True,
@@ -30,16 +28,6 @@ class StrictModel(BaseModel):
                     f"Extra fields are not permitted: {sorted(extra)}"
                 )
         return data
-
-# class StrictModel(BaseModel):
-#     """Base model for validated Shikhar-AI data contracts."""
-
-#     model_config = ConfigDict(
-#         extra="forbid",
-#         str_strip_whitespace=True,
-#         validate_assignment=True,
-#         validate_default=True,
-#     )
 
 class DisasterType(str, Enum):
     EARTHQUAKE = "earthquake"
