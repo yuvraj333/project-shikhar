@@ -1,8 +1,7 @@
-// frontend/src/lib/api.ts
 import { ShikharResponse, MessageDraft } from '@/app/types';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000';
+  process.env.NEXT_PUBLIC_API_URL ||'https://shikhar-backend-361074642677.us-central1.run.app'
 
 export async function processReport(reportText: string): Promise<ShikharResponse> {
   const response = await fetch(`${API_BASE_URL}/api/process`, {
