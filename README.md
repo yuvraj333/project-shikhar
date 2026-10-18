@@ -4,9 +4,7 @@
 
 Shikhar-AI is a disaster-response decision-support prototype designed to transform unstructured emergency reports into structured incident information, evidence-grounded resource recommendations, and draft coordination messages.
 
-The system uses specialized AI agents to organize incoming information, identify missing or uncertain details, evaluate available resources, and prepare communication drafts for human review. It is designed to assist response coordinators—not replace their judgment or operate emergency-response systems autonomously.
-
-Shikhar-AI is a multi-agent disaster response and public coordination platform. It leverages Gemini (via the Google Gen AI SDK) across its multi-agent pipeline (Scout, Logistics, and Communications) to perform real-time unstructured text extraction, inventory matching, and multi-lingual emergency alert drafting under strict human review. The application architecture is containerized and deployed serverlessly on Cloud Run for scalable backend and frontend operations. For persistence, Firebase Firestore is integrated to store real-time survivor GPS rescue telemetry, authorized public broadcasts, and incident audit logs, ensuring instantaneous synchronization between the Public Safety Portal and the Command Center dashboard.
+Furthermore, Shikhar-AI is a multi-agent disaster response and public coordination platform. It leverages Gemini (via the Google Gen AI SDK) across its multi-agent pipeline (Scout, Logistics, and Communications) to perform real-time unstructured text extraction, inventory matching, and multi-lingual emergency alert drafting under strict human review. The application architecture is containerized and deployed serverlessly on Cloud Run for scalable backend and frontend operations. For persistence, SQLite is integrated to store real-time survivor GPS rescue telemetry, authorized public broadcasts, and incident audit logs, ensuring instantaneous synchronization between the Public Safety Portal and the Command Center dashboard.
 
 ## Vision
 
