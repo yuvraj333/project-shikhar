@@ -7,10 +7,8 @@ class DraftStatus(str, Enum):
     PENDING_REVIEW = "pending_review"
     APPROVED = "approved"
     REJECTED = "rejected"
-
 class MessageDraft(StrictModel):
     """A communication draft prepared for human review."""
-
     draft_id: NonEmptyString
     language: Literal["en", "ne"]
     audience: NonEmptyString
@@ -28,6 +26,5 @@ class CommunicationPackage(StrictModel):
     drafts: list[MessageDraft] = Field(default_factory=list)
     # Shikhar-AI currently prepares drafts but does not deliver them.
     delivery_status: Literal["not_sent"] = "not_sent"
-
     # Messages must go through human review before any external use.
     requires_human_approval: bool = True
